@@ -1,0 +1,8 @@
+{
+    "settings": {
+        "avNumDsOneVm" : 0,
+        "avNicsHost" : 1,
+        "avNumVDisksVm" : 3,
+        "avNumGDiskVm" : 0
+    }
+}

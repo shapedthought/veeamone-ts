@@ -52,7 +52,7 @@ class OtherDataSize {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
       (5 * ((288 * 7 + 13 * monthDays) * 7 + (48 * 7 + 3 * monthDays) * 3) +
-        data.hvNumCsv *
+        (data.hvNumCsv as number) *
           ((288 * 7 + 13 * monthDays) * (18 + 2) +
             (48 * 7 + 3 * monthDays) * 3)) *
       this.unknown.unknownParamExtended;

@@ -30,7 +30,7 @@ class PerformanceSize {
   vbrPerf(data: PerfSizeInter) {
     this.vbrServers = this.vbrCal.vbrServerCal(data.vmQty);
     this.vbrAvNumRepo = this.vbrCal.vbrRepoCal(this.vbrServers);
-    this.vbrAvNumProxy = this.vbrCal.vbrProxyCal(this.vbrServers);
+    this.vbrAvNumProxy = this.vbrCal.vbrProxyCal(this.vbrServers); //TODO: need to update this with vm count input and change the vbrCal method
     this.vbrAvJobsServer = this.vbrCal.vbrProxyCal(data.vmQty);
     const monthDays = 30.44 * data.historicPerfData;
     const timeVar1 = 96 * 7 + 13 * monthDays; // 96 hours? * 7 * 13 * monthDays
