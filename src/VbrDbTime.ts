@@ -15,10 +15,10 @@ interface VbrDbTimeInter {
 }
 
 class VbrDbTime {
-  public vbrServers: number;
-  public vbrAvJobsServer: number;
-  public vbrAvVmJob: number;
-  public vbrAvRestoreDay: number;
+  public vbrServers = 0;
+  public vbrAvJobsServer = 0;
+  public vbrAvVmJob = 0;
+  public vbrAvRestoreDay = 0;
 
   public vbrCal = new VbrCal();
 

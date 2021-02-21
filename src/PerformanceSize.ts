@@ -22,10 +22,10 @@ class PerformanceSize {
   private vbrCal = new VbrCal();
   public vbrAvNumWan = 0;
   public entermanQty = 1;
-  public vbrServers: number;
-  public vbrAvNumRepo: number;
-  public vbrAvNumProxy: number;
-  public vbrAvJobsServer: number;
+  public vbrServers = 0;
+  public vbrAvNumRepo = 0;
+  public vbrAvNumProxy = 0;
+  public vbrAvJobsServer = 0;
 
   vbrPerf(data: PerfSizeInter) {
     this.vbrServers = this.vbrCal.vbrServerCal(data.vmQty);

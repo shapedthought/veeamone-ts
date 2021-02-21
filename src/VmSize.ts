@@ -17,7 +17,7 @@ interface HvVmSizeInter extends General {
   hvAvNumGdVm: number; // Average number of Guest Disk per VM
 }
 
-export class VmSize {
+class VmSize {
   private unknown = new Unknown();
 
   vmSize(data: VmSizeInter): number {
@@ -76,3 +76,5 @@ export class VmSize {
     return result;
   }
 }
+
+export {VmSizeInter, HvVmSizeInter, VmSize}

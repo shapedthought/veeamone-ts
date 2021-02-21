@@ -1,7 +1,5 @@
 import {
   General,
-  VmSizeInter,
-  HvVmSizeInter,
   HostSizeInter,
   HvHostSizeInter,
   DatastoreSizeInter,
@@ -10,6 +8,14 @@ import {
   HvEventsDataInter,
 } from './Interfaces';
 
-import {VmSize} from './VmSize';
+import {VmSizeInter, HvVmSizeInter, VmSize} from './VmSize';
+
+// function for typical?
+// Will create the class then run the relative methods for each
+
+
+// function for advanced?
+
+
 
 
