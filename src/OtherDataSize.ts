@@ -1,5 +1,6 @@
 import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
+import { InfraSettings } from './Settings';
 
 interface OtherDataInter extends General {
   resourcePool: number; // Resource Pools
@@ -17,14 +18,20 @@ interface VhOtherDataInter extends General {
   hvNumCsv?: number;
 }
 
-class OtherDataSize {
+export class OtherDataSizeCal {
   private unknown = new Unknown();
+  private settings: InfraSettings;
 
-  otherData(data: OtherDataInter): number {
-    const monthDays = 30.44 * data.historicPerfData;
+  constructor(settings: InfraSettings) {
+    this.settings = settings;
+  }
+
+  otherData(): number {
+    const monthDays = 30.44 * this.settings.historicPerfData;
+
     const result =
-      ((data.resourcePool + data.vapp) * (288 * 7 + 13 * monthDays) * 24 +
-        data.resourcePool * (288 * 7 + 13 * monthDays) * 27) *
+      ((this.settings.resourcePoolQty + this.settings.vappQty) * (288 * 7 + 13 * monthDays) * 24 +
+        this.settings.resourcePoolQty * (288 * 7 + 13 * monthDays) * 27) *
       this.unknown.unknownParamExtended;
     return result;
   }
@@ -38,15 +45,18 @@ class OtherDataSize {
       this.unknown.unknownParamExtended;
     return result;
   }
+
   // has clusters which the other don't
-  otherDatat(data: OtherDataInter) {
-    const monthDays = 30.44 * data.historicPerfData;
+  otherDatat(): number {
+    const monthDays = 30.44 * this.settings.historicPerfData;
+
     const result =
-      ((data.resourcePool + data.vapp) * (288 * 7 + 13 * monthDays) * 46 +
-        data.clusters * (288 * 7 + 13 * monthDays) * 56) *
+      ((this.settings.resourcePoolQty + this.settings.vappQty) * (288 * 7 + 13 * monthDays) * 46 +
+        this.settings.clusterQty * (288 * 7 + 13 * monthDays) * 56) *
       this.unknown.unknownParamExtended;
     return result;
   }
+
   // different interface to the advanced version
   hvOtherDatat(data: VhOtherDataInter) {
     const monthDays = 30.44 * data.historicPerfData;

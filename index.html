@@ -14,37 +14,38 @@
   </head>
   <body>
     <div class="container">
+      <h4 class="mt-4">Veeam ONE Calculator Test</h4>
       <form>
         <div class="mb-3">
           <label for="exampleInputEmail1" class="form-label"
-            >Email address</label
+            >VM Qty</label
           >
           <input
-            type="email"
+            type="number"
             class="form-control"
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
           />
-          <div id="emailHelp" class="form-text">
-            We'll never share your email with anyone else.
-          </div>
         </div>
         <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Password</label>
+          <label for="exampleInputPassword1" class="form-label">Host Qty</label>
           <input
-            type="password"
+            type="number"
             class="form-control"
             id="exampleInputPassword1"
           />
         </div>
-        <div class="mb-3 form-check">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1" />
-          <label class="form-check-label" for="exampleCheck1"
-            >Check me out</label
-          >
-        </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
+      <hr>
+      <div>
+        <h4 class="mt-4">Output Area</h4>
+        <ul>
+          <li>CPU: 8</li>
+          <li>RAM: 8 GB</li>
+          <li>Database size: 0 GB</li>
+        </ul>
+      </div>
     </div>
 
     <script

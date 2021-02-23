@@ -1,5 +1,6 @@
 import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
+import {InfraSettings } from './Settings';
 
 interface VmSizeInter extends General {
   vmCount: number; // VMs
@@ -17,20 +18,27 @@ interface HvVmSizeInter extends General {
   hvAvNumGdVm: number; // Average number of Guest Disk per VM
 }
 
-class VmSize {
+// need to create each class passing in the settings object
+class VmSizeCal {
   private unknown = new Unknown();
+  private settings: InfraSettings;
 
-  vmSize(data: VmSizeInter): number {
-    const monthDays = 30.44 * data.historicPerfData;
+  constructor(settings: InfraSettings) {
+    this.settings = settings;
+  }
+
+  vmSize(): number { // data: VmSizeInter
+    const monthDays = 30.44 * this.settings.historicPerfData; // data.historicPerData
+    const vmCount = this.settings.vmQty; // changed the name so it doesn't break
     const result =
-      data.vmCount *
+      vmCount * // only actual varible that is added as part of the method
       ((96 * 7 + 13 * monthDays) *
         (43 +
-          10 * data.avNumDsOneVm +
-          5 * data.avNicsHost +
-          6 * data.avNumVDisksVm) +
+          10 * this.settings.avNumDsOneVm +  //data.avNumDsOneVm
+          5 * this.settings.avNicsHost +
+          6 * this.settings.avNumVDisksVm) +
         (48 * 7 + 2 * monthDays) *
-          (2 * (data.avNumDsOneVm + data.avNumGDiskVm))) *
+          (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * //data.avNumGDiskVm
       this.unknown.unknownParamExtended;
     return result;
   }
@@ -47,17 +55,19 @@ class VmSize {
     return result;
   }
 
-  vmSizet(data: VmSizeInter) {
-    const monthDays = 30.44 * data.historicPerfData;
+  // Using in the VeeamOne.ts
+  vmSizet() {
+    const monthDays = 30.44 * this.settings.historicPerfData;
+    const vmCount = this.settings.vmQty; // changed the name so it doesn't break
     const result =
-      data.vmCount *
+      vmCount *
       ((288 * 7 + 13 * monthDays) *
         (47 +
-          13 * data.avNumDsOneVm +
-          5 * data.avNicsHost +
-          6 * data.avNumDsOneVm) +
+          13 * this.settings.avNumDsOneVm +
+          5 * this.settings.avNicsHost +
+          6 * this.settings.avNumDsOneVm) +
         (48 * 7 + 2 * monthDays) *
-          (2 * (data.avNumDsOneVm + data.avNumGDiskVm))) *
+          (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) *
       this.unknown.unknownParamExtended;
     return result;
   }
@@ -77,4 +87,4 @@ class VmSize {
   }
 }
 
-export {VmSizeInter, HvVmSizeInter, VmSize}
+export {VmSizeInter, HvVmSizeInter, VmSizeCal}

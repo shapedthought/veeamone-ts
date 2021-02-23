@@ -1,26 +1,33 @@
 import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
+import { InfraSettings } from './Settings';
 
 export interface DatastoreSizeInter extends General {
   datastores: number; // Datastores
 }
 
-class DataStoreSizeAd {
+export class DataStoreSizeCal {
   private unknown = new Unknown();
+  private settings: InfraSettings;
 
-  datastoreSize(data: DatastoreSizeInter): number {
-    const monthDays = 30.44 * data.historicPerfData;
+  constructor(settings: InfraSettings) {
+    this.settings = settings;
+  }
+
+  datastoreSize(): number { // data: DatastoreSizeInter
+
+    const monthDays = 30.44 * this.settings.historicPerfData;
     const result =
-      data.datastores *
+      this.settings.datastoreQty * // calculated value, was data.datastores
       ((96 * 7 + 13 * monthDays) * 10 + (48 * 7 + 2 * monthDays) * 2) *
       this.unknown.unknownParamExtended;
     return result;
   }
 
-  datastoreSizet(data: DatastoreSizeInter) {
-    const monthDays = 30.44 * data.historicPerfData;
+  datastoreSizet() {
+    const monthDays = 30.44 * this.settings.historicPerfData;
     const result =
-      data.datastores *
+      this.settings.datastoreQty *
       ((288 * 7 + 13 * monthDays) * 10 +
         (48 * 7 + 2 * monthDays) * 2) *
       this.unknown.unknownParamExtended;

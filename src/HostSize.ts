@@ -1,5 +1,6 @@
 import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
+import { InfraSettings } from './Settings';
 
 export interface HostSizeInter extends General {
   hosts: number; // Hosts
@@ -17,23 +18,29 @@ export interface HvHostSizeInter extends General {
   avVswitchHost: number; // Average number of Virtual Switch per Host
 }
 
-class HostSize {
+export class HostSizeCal {
   private unknown = new Unknown();
+  private settings: InfraSettings;
+
+  constructor(settings: InfraSettings){
+    this.settings = settings;
+  }
 
   // Advanced
-  hostSize(data: HostSizeInter): number {
-    const monthDays = 30.44 * data.historicPerfData;
+  hostSize(): number { // data: HostSizeInter
+
+    const monthDays = 30.44 * this.settings.historicPerfData;
     const result =
-      data.hosts *
+      this.settings.hostQty * // calculated property
       (288 * 7 + 13 * monthDays) *
       (49 +
-        (12 * data.datastores) / data.hosts +
-        9 * data.avNicsHost +
-        6 * (data.avSdPerHost + data.avSpPerHost)) *
+        (12 * this.settings.datastoreQty) / this.settings.hostQty +
+        9 * this.settings.avNicsHost +
+        6 * (this.settings.avSdPerHost + this.settings.avSpPerHost)) *
       this.unknown.unknownParamExtended;
     return result;
   }
-
+  // will probably delete
   hvHosts(data: HvHostSizeInter): number {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
@@ -45,14 +52,14 @@ class HostSize {
   }
 
   // Typical
-  hostSizet(data: HostSizeInter) {
+  hostSizet() {
     const result =
-      data.hosts *
-      (288 * 7 + 13 * (30.44 * data.historicPerfData)) *
+      this.settings.hostQty *
+      (288 * 7 + 13 * (30.44 * this.settings.historicPerfData)) *
       (55 +
-        (12 * data.datastores) / data.hosts +
-        11 * data.avNicsHost +
-        7 * (data.avSdPerHost + data.avSpPerHost)) *
+        (12 * this.settings.datastoreQty) / this.settings.hostQty +
+        11 * this.settings.avNicsHost +
+        7 * (this.settings.avSdPerHost + this.settings.avSpPerHost)) *
       this.unknown.unknownParamExtended;
     return result;
   }
