@@ -1,39 +1,26 @@
-import {VbrCal} from './VbrCal';
-
-// interface VbrDbTimeInter {
-//   vmQty: number; // added
-//   historicPerfData: number;
-//   vbrServers: number;
-//   vbrAvJobsServer: number;
-//   vbrAvVmJob: number;
-//   vbrAvRestoreDay: number;
-// }
+import { VbrCal } from './VbrCal';
+import { VeeamSettings } from './Settings';
 
 interface VbrDbTimeInter {
   vmQty: number; // added
   historicPerfData: number;
 }
 
-class VbrDbTime {
-  public vbrServers = 0;
-  public vbrAvJobsServer = 0;
-  public vbrAvVmJob = 0;
-  public vbrAvRestoreDay = 0;
+export class VbrDbTime {
+  private settings: VeeamSettings;
 
-  public vbrCal = new VbrCal();
+  constructor(settings: VeeamSettings) {
+    this.settings = settings;
+  }
 
-
-  vbrDb(data: VbrDbTimeInter) {
-    this.vbrAvJobsServer = this.vbrCal.vbrJobsCal(data.vmQty);
-    this.vbrAvVmJob = this.vbrCal.vbrJobsCal(data.vmQty);
-    this.vbrAvRestoreDay = this.vbrCal.vbrCalRestore(data.vmQty);
+  vbrDb() {
     const result =
-      ((data.historicPerfData / 12) *
-        this.vbrServers *
-        this.vbrAvJobsServer *
+      ((this.settings.historicPerfData / 12) *
+        this.settings.vbrServers *
+        this.settings.vbrAvJobsServer *
         (365 * 2179 +
-          365 * 1436 * this.vbrAvVmJob +
-          366 * 3262 * this.vbrAvRestoreDay)) /
+          365 * 1436 * this.settings.vbrAvJobsServer +
+          366 * 3262 * this.settings.vbrRestore)) /
       1024 /
       1024 /
       1024;
