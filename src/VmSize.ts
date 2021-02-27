@@ -32,12 +32,12 @@ class VmSizeCal {
     const vmCount = this.settings.vmQty; // changed the name so it doesn't break
     const result =
       vmCount * // only actual varible that is added as part of the method
-      ((96 * 7 + 13 * monthDays) *
+      (((96 * 7) + (13 * monthDays)) *
         (43 +
-          10 * this.settings.avNumDsOneVm +  //data.avNumDsOneVm
-          5 * this.settings.avNicsHost +
-          6 * this.settings.avNumVDisksVm) +
-        (48 * 7 + 2 * monthDays) *
+          (10 * this.settings.avNumDsOneVm) +  //data.avNumDsOneVm
+          // (5 * this.settings.avNicsHost) +
+          (6 * this.settings.avNumVDisksVm)) +
+        ((48 * 7) + (2 * monthDays)) *
           (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * //data.avNumGDiskVm
       this.unknown.unknownParamExtended;
     return result;

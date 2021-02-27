@@ -29,10 +29,19 @@ interface formData {
 document.getElementById('simpleNextBtn')?.addEventListener('click', ()=> {
   const vmQty = (document.getElementById('vmQty') as HTMLInputElement).value;
   const hostQty = (document.getElementById('hostQty') as HTMLInputElement).value;
-  const requirements = new runCalculation();
-  if((document.getElementById('advancedCheck') as HTMLInputElement).checked) {
+
+  // create new instance of the Requiremets class below
+  const requirements = new Requirements();
+
+  // Check if the advanced is checked
+  if((document.getElementById('advancedMode') as HTMLInputElement).checked) {
+    // Updates the settings for the hypervisor which calculates the requirements based on ratios
+    // see the Settings.TS file
     requirements.settings.updateQty(parseInt(vmQty), parseInt(hostQty));
+
+    // Get the updated settings and output the results into the second form group
     const settings = requirements.settings.getSettings();
+    (document.getElementById('advScaleThresh') as HTMLInputElement).value = settings.vmThreashold.toString();
     (document.getElementById('avNumVDisksVm') as HTMLInputElement).value = settings.avNumVDisksVm.toString();
     (document.getElementById('clusterQty') as HTMLInputElement).value = settings.clusterQty.toString();
     (document.getElementById('avNumGDiskVm') as HTMLInputElement).value = settings.avNumGDiskVm.toString();
@@ -41,21 +50,30 @@ document.getElementById('simpleNextBtn')?.addEventListener('click', ()=> {
     (document.getElementById('avSdPerHost') as HTMLInputElement).value = settings.avSdPerHost.toString();
     (document.getElementById('eventsHistory') as HTMLInputElement).value = settings.eventsHistory.toString();
     (document.getElementById('vappQty') as HTMLInputElement).value = settings.vappQty.toString(); 
-    (document.getElementById('datastoreQty') as HTMLInputElement).value = settings.datastoreQty.toString(); 
+    (document.getElementById('datastoreQty') as HTMLInputElement).value = settings.datastoreQty.toString();
   } else {
+
+    // If advanced isn't selected the run the calculation using the ratios only
     requirements.runCal(parseInt(vmQty), parseInt(hostQty));
-    (document.getElementById('vmDataGB') as HTMLInputElement).value = requirements.vmCap.toString();
-    (document.getElementById('hostDataGB') as HTMLInputElement).value = requirements.hostCap.toString();
-    (document.getElementById('dataStoreGB') as HTMLInputElement).value = requirements.dataStoreCap.toString();
-    (document.getElementById('eventGB') as HTMLInputElement).value = requirements.eventsData.toString();
-    (document.getElementById('vbrperfGB') as HTMLInputElement).value = requirements.vbrPerfData.toString();
-    (document.getElementById('vbrEventGB') as HTMLInputElement).value = requirements.vbrEventsData.toString();
-    (document.getElementById('vbrJobGB') as HTMLInputElement).value = requirements.vbrDbTimeData.toString();
+    const r = requirements;
+    const totalCap = r.vmCap + r.hostCap + r.dataStoreCap + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData;
+    (document.getElementById('vmDataGB') as HTMLInputElement).innerHTML = r.vmCap.toFixed(2);
+    (document.getElementById('hostDataGB') as HTMLInputElement).innerHTML = r.hostCap.toFixed(2);
+    (document.getElementById('dataStoreGB') as HTMLInputElement).innerHTML = r.dataStoreCap.toFixed(2);
+    (document.getElementById('eventGB') as HTMLInputElement).innerHTML = r.eventsData.toFixed(2);
+    (document.getElementById('vbrperfGB') as HTMLInputElement).innerHTML = r.vbrPerfData.toFixed(2);
+    (document.getElementById('vbrEventGB') as HTMLInputElement).innerHTML = r.vbrEventsData.toFixed(2);
+    (document.getElementById('vbrJobGB') as HTMLInputElement).innerHTML = r.vbrDbTimeData.toFixed(2);
+    (document.getElementById('totalCap') as HTMLInputElement).innerHTML = totalCap.toFixed(2);
   }
 })
 
+// 
 document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
-  const requiremets = new runCalculation();
+  // Create a new instances of the Requirements class
+  const requiremets = new Requirements();
+
+  // Grab the updated elements from the form
   const vmQty = parseInt((document.getElementById('vmQty') as HTMLInputElement).value);
   const hostQty = parseInt((document.getElementById('hostQty') as HTMLInputElement).value);
   const clusterQty = parseInt((document.getElementById('clusterQty') as HTMLInputElement).value);
@@ -68,6 +86,7 @@ document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
   const vappQty = parseInt((document.getElementById('vappQty') as HTMLInputElement).value);
   const datastoreQty = parseInt((document.getElementById('datastoreQty') as HTMLInputElement).value);
 
+  // Create a new single object with the form data
   const data = {
     vmQty,
     hostQty,
@@ -81,18 +100,31 @@ document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
     vappQty,
     datastoreQty
   }
+  // update the settings which uses a "set"
   requiremets.settings.updateSettings = data;
+
+  // Update the veeam settings with the timescales which are the only variable
+  // All other settings are caculated from the VM Quantity
+  requiremets.veeamSettings.updateSettings(historicPerfData, eventsHistory);
+
+  // Now run the calculation based on the new settings
   requiremets.runCal(vmQty, hostQty);
-  (document.getElementById('vmDataGB') as HTMLInputElement).value = requiremets.vmCap.toString();
-  (document.getElementById('hostDataGB') as HTMLInputElement).value = requiremets.hostCap.toString();
-  (document.getElementById('dataStoreGB') as HTMLInputElement).value = requiremets.dataStoreCap.toString();
-  (document.getElementById('eventGB') as HTMLInputElement).value = requiremets.eventsData.toString();
-  (document.getElementById('vbrperfGB') as HTMLInputElement).value = requiremets.vbrPerfData.toString();
-  (document.getElementById('vbrEventGB') as HTMLInputElement).value = requiremets.vbrEventsData.toString();
-  (document.getElementById('vbrJobGB') as HTMLInputElement).value = requiremets.vbrDbTimeData.toString();
+
+  // Output the final results to the DOM
+  const r = requiremets;
+  const totalCap = r.vmCap + r.hostCap + r.dataStoreCap + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData;
+  (document.getElementById('vmDataGB') as HTMLInputElement).innerHTML = r.vmCap.toFixed(2);
+  (document.getElementById('hostDataGB') as HTMLInputElement).innerHTML = r.hostCap.toFixed(2);
+  (document.getElementById('dataStoreGB') as HTMLInputElement).innerHTML = r.dataStoreCap.toFixed(2);
+  (document.getElementById('otherStoreGB') as HTMLInputElement).innerHTML = r.otherData.toFixed(2);
+  (document.getElementById('eventGB') as HTMLInputElement).innerHTML = r.eventsData.toFixed(2);
+  (document.getElementById('vbrperfGB') as HTMLInputElement).innerHTML = r.vbrPerfData.toFixed(2);
+  (document.getElementById('vbrEventGB') as HTMLInputElement).innerHTML = r.vbrEventsData.toFixed(2);
+  (document.getElementById('vbrJobGB') as HTMLInputElement).innerHTML = r.vbrDbTimeData.toFixed(2);
+  (document.getElementById('totalCap') as HTMLInputElement).innerHTML = totalCap.toFixed(2);
 })
 
-class runCalculation {
+class Requirements {
   vmCap = 0;
   hostCap = 0;
   dataStoreCap = 0;
@@ -118,6 +150,16 @@ class runCalculation {
   runCal(vmCount: number, hosts: number){
     this.settings.updateQty(vmCount, hosts);
     this.veeamSettings.updateQty(vmCount);
+
+    console.log(
+      `
+      vbr servers: ${this.veeamSettings.vbrServers}
+      Proxies: ${this.veeamSettings.vbrAvNumProxy}
+      Repos: ${this.veeamSettings.vbrAvNumRepo},
+      Jobs: ${this.veeamSettings.vbrAvJobsServer},
+      Restore: ${this.veeamSettings.vbrRestore},
+      `
+    )
 
     const vmSizeCapCal = new VmSizeCal(this.settings);
     const hostSizeCal = new HostSizeCal(this.settings);

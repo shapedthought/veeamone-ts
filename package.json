@@ -2,9 +2,10 @@
   "name": "veeam_one_sizing_calculator",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start:parcel": "parcel index.html"
+    "dev": "parcel src/index.html",
+    "prod": "parcel build src/index.html"
   },
   "keywords": [],
   "author": "",

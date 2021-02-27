@@ -1,5 +1,3 @@
-import { VbrCal } from './VbrCal';
-
 interface settingsUpdateInter {
   avNicsHost: number,
   avNumVDisksVm: number,
@@ -31,11 +29,11 @@ interface returnSettings {
 
 export class InfraSettings {
   // Calculation ratios
-  private datastoreRatio = 30; // vm to datastore ratio
+  private datastoreRatio = 200; // vm to datastore ratio
   // private hostRatio = 50; // provided by user input
-  private rPoolRatio = 20; // hosts to resource pool ratio
-  private clusterRatio = 5; // clusters to hosts ratio
-  private vappRatio = 2; // vapp to hosts ratio
+  private rPoolRatio = 100; // vm to resource pool ratio
+  private clusterRatio = 10; // host to clusters
+  private vappRatio = 50; // vm to vapp ratio
 
   //Average values
   avNumDsOneVm = 0; // Average datastores with one vm- not changeable
@@ -62,7 +60,7 @@ export class InfraSettings {
     this.vmQty = vmCount;
     this.hostQty = hosts;
     this.resourcePoolQty = Math.ceil(vmCount / this.rPoolRatio);
-    this.clusterQty = Math.ceil(vmCount / this.clusterRatio);
+    this.clusterQty = Math.ceil(hosts / this.clusterRatio);
     this.vappQty = Math.ceil(vmCount / this.vappRatio);
     this.datastoreQty = Math.ceil(vmCount / this.datastoreRatio);
   }
@@ -104,11 +102,11 @@ export class VeeamSettings {
   // Veeam ratios
   vbrVmRatio = 1500;
   proxyToVmRatio = 400; // TODO need to look at this
-  repoRatio = 3;
+  repoRatio = 2;
   wanAccRatio = 0;
   vmsPerJobRatio = 70;
   jobsRatio = 70; // might not need this
-  restoreRatio = 100; // one restore per 100 VMs
+  restoreRatio = 1000; // one restore per 1000 VMs per-day
 
   // Calculated values
   entermanQty = 1; // hard coded
@@ -127,16 +125,21 @@ export class VeeamSettings {
   updateQty(vmCount: number){
     this.vmQty = vmCount;
     this.vbrServers = Math.ceil(vmCount / this.vbrVmRatio);
-    this.vbrAvNumRepo = Math.ceil(vmCount / this.repoRatio);
-    this.vbrAvNumProxy = Math.ceil(vmCount / this.proxyToVmRatio);
-    this.vbrAvJobsServer = Math.ceil(vmCount / this.jobsRatio);
+    this.vbrAvNumRepo = Math.ceil(this.vbrServers * this.repoRatio);
+    // this.vbrAvNumProxy = Math.ceil(vmCount / this.proxyToVmRatio);
+    this.vbrAvNumProxy = Math.ceil(this.proxyCal());
+    this.vbrAvJobsServer = Math.ceil(vmCount / this.jobsRatio) / this.vbrServers;
     this.vbrRestore = Math.ceil(vmCount / this.restoreRatio);
   }
 
-  // Can delete this as the ratios don't get updated
   updateSettings(historicPerfData: number, eventsHistory: number) {
     // only exception are these
     this.historicPerfData = historicPerfData;
     this.eventsHistory = eventsHistory;
+  }
+
+  proxyCal(): number{
+    const calculation = ((((this.vmQty * 51200) *0.05 )/ (8 * 3600)) / 25);
+    return calculation
   }
 }
