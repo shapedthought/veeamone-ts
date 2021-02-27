@@ -1,7 +1,21 @@
 import { VbrCal } from './VbrCal';
 
+interface settingsUpdateInter {
+  avNicsHost: number,
+  avNumVDisksVm: number,
+  avNumGDiskVm: number,
+  avSdPerHost: number,
+  historicPerfData: number,
+  eventsHistory: number,
+  vmQty: number,
+  hostQty: number,
+  clusterQty: number,
+  vappQty: number,
+  datastoreQty: number,
+}
+
 interface returnSettings {
-  vmThreadhold: number,
+  vmThreashold: number,
   resourcePoolQty: number;
   clusterQty: number;
   vappQty: number;
@@ -54,9 +68,9 @@ export class InfraSettings {
   }
 
   // To be used when you run advanced
-  getSettings(): returnSettings {
-    const returnData= {
-      vmThreadhold: this.vmThreashold,
+  getSettings(): returnSettings{
+    return {
+      vmThreashold: this.vmThreashold,
       resourcePoolQty: this.resourcePoolQty,
       clusterQty: this.clusterQty,
       vappQty: this.vappQty,
@@ -69,25 +83,17 @@ export class InfraSettings {
       historicPerfData: this.historicPerfData,
       eventsHistory: this.eventsHistory
     }
-    return returnData
   }
 
-  set updateSettings(data: InfraSettings) {
-      this.avNumDsOneVm = data.avNumDsOneVm;
-      this.avNicsHost = data.avNumDsOneVm;
+  set updateSettings(data: settingsUpdateInter) {
+      this.avNicsHost = data.avNicsHost;
       this.avNumVDisksVm = data.avNumVDisksVm;
       this.avNumGDiskVm = data.avNumGDiskVm;
       this.avSdPerHost = data.avSdPerHost;
-      this.avSpPerHost = data.avSpPerHost;
-      this.datastoreRatio = data.datastoreRatio;
-      this.rPoolRatio = data.rPoolRatio;
-      this.clusterRatio = data.clusterRatio;
-      this.vappRatio = data.vappRatio;
       this.historicPerfData = data.historicPerfData;
       this.eventsHistory = data.eventsHistory;
       this.vmQty = data.vmQty;
       this.hostQty = data.hostQty;
-      this.resourcePoolQty = data.resourcePoolQty;
       this.clusterQty = data.clusterQty;
       this.vappQty = data.vappQty;
       this.datastoreQty = data.datastoreQty;

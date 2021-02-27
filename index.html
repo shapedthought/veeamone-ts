@@ -33,14 +33,17 @@
               value=""
               id="advancedMode"
             />
-            <label class="form-check-label" for="advancedMode"
+            <label
+              class="form-check-label"
+              for="advancedMode"
+              id="advancedCheck"
               >Advanced Settings</label
             >
           </div>
         </div>
         <div class="row mt-2">
           <div class="col">
-            <button class="btn btn-primary">Next</button>
+            <button class="btn btn-primary" id="simpleNextBtn">Next</button>
           </div>
         </div>
         <div class="row mt-3">
@@ -49,17 +52,21 @@
             <input type="number" class="form-control" id="advScaleMode" />
           </div>
           <div class="col">
-            <label for="avNumVDisksVm">Average number of virtual disks per VM</label>
+            <label for="avNumVDisksVm"
+              >Average number of virtual disks per VM</label
+            >
             <input type="number" class="form-control" id="avNumVDisksVm" />
           </div>
         </div>
         <div class="row mt-3">
           <div class="col">
-            <label for="clusterRatio">Average Hosts per cluster</label>
-            <input type="number" class="form-control" id="clusterRatio" />
+            <label for="clusterQty">Cluster Qty</label>
+            <input type="number" class="form-control" id="clusterQty" />
           </div>
           <div class="col">
-            <label for="avNumGDiskVm">Average number of guest disk per VM</label>
+            <label for="avNumGDiskVm"
+              >Average number of guest disk per VM</label
+            >
             <input type="number" class="form-control" id="avNumGDiskVm" />
           </div>
         </div>
@@ -69,29 +76,39 @@
             <input type="number" class="form-control" id="avNicsHost" />
           </div>
           <div class="col">
-            <label for="historicPerfData">Historical performance and backup data (months)</label>
+            <label for="historicPerfData"
+              >Historical performance and backup data (months)</label
+            >
             <input type="number" class="form-control" id="historicPerfData" />
           </div>
         </div>
         <div class="row mt-3">
           <div class="col">
-            <label for="avNicsHost">Average number of Storage Adaptor per host</label>
+            <label for="avSdPerHost"
+              >Average number of Storage Adaptor per host</label
+            >
             <input type="number" class="form-control" id="avSdPerHost" />
           </div>
           <div class="col">
-            <label for="historicPerfData">Period of time for keeping events data</label>
+            <label for="eventsHistory"
+              >Period of time for keeping events data</label
+            >
             <input type="number" class="form-control" id="eventsHistory" />
           </div>
         </div>
         <div class="row mt-3">
-          <div class="col-6">
-            <label for="avNicsHost">vApps per-host</label>
+          <div class="col">
+            <label for="vappQty">vApps per-host</label>
             <input type="number" class="form-control" id="vappQty" />
+          </div>
+          <div class="col">
+            <label for="datastoreQty">Datastore Qty</label>
+            <input type="number" class="form-control" id="datastoreQty" />
           </div>
         </div>
         <div class="row mt-2">
           <div class="col">
-            <button class="btn btn-primary">Next</button>
+            <button class="btn btn-primary" id="advancedNextBtn">Next</button>
           </div>
         </div>
         <!-- 
@@ -118,12 +135,20 @@
       
       -->
         <hr />
-        <div>
-          <h4 class="mt-4">Output Area</h4>
+        <div class="row">
+          <h3 class="mt-4">Output Area</h3>
+          <h4>Hypervisor Data</h4>
           <ul>
-            <li>CPU: 8</li>
-            <li>RAM: 8 GB</li>
-            <li>Database size: 0 GB</li>
+            <li>VM Data GB:<span id="vmDataGB">0</span></li>
+            <li>Host Data GB:<span id="hostDataGB">0</span></li>
+            <li>Datastore GB:<span id="dataStoreGB">0</span></li>
+            <li>Event GB:<span id="eventGB">0</span></li>
+          </ul>
+          <h4>Backup Data</h4>
+          <ul>
+            <li>Peformance GB:<span id="vbrperfGB">0</span></li>
+            <li>Event GB:<span id="vbrEventGB">0</span></li>
+            <li>Job GB:<span id="vbrJobGB">0</span></li>
           </ul>
         </div>
       </div>
@@ -134,6 +159,6 @@
       integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
       crossorigin="anonymous"
     ></script>
-    <script src="./src/veeamOne.ts"></script>
+    <script src="./src/index.ts"></script>
   </body>
 </html>
