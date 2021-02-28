@@ -1,17 +1,5 @@
 import { Unknown } from './UnknownParam';
-import { VbrCal } from './VbrCal';
 import { VeeamSettings } from './Settings';
-
-// export interface PerfSizeInter {
-//   vmQty: number;
-//   vbrNumVbrEm: number; // Veeam Backup & Replication Enterprise Manager
-//   vbrServers: number; // Veeam Backup & Replication servers
-//   historicPerfData: number; // Period of time for keeping historical performance and backup data
-//   vbrAvNumRepo: number; // Average number of Repositories  per VBR
-//   vbrAvNumProxy: number; // Average number of Proxy  per VBR
-//   vbrAvNumWan: number; // Average number of WAN Accelerators  per VBR
-//   vbrAvJobsServer: number; // Average number of Jobs per backup server
-// }
 
 export interface PerfSizeInter {
   vmQty: number;
@@ -27,38 +15,53 @@ export class PerformanceSize {
     this.vbrSettings = veeamSettings;
   }
 
-  vbrPerf(): number {
+  vbrPerfold(): number {
     const monthDays = 30.44 * this.vbrSettings.historicPerfData;
-    const timeVar1 = 96 * 7 + 13 * monthDays; // 96 hours? * 7 * 13 * monthDays
-    const timeVar2 = 96 * 7 + 25 * monthDays; // 4
-    const timeVar3 = 24 * 7 + 2 * monthDays; // hours in 2 x historic years?
+    const timeVar1 = (96 * 7) + (13 * monthDays); 
+    const timeVar2 = (96 * 7) + (25 * monthDays); 
+    const timeVar3 = (24 * 7) + (2 * monthDays); 
     const result =
       ((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) *
         timeVar1 *
         12 +
         this.vbrSettings.vbrAvNumRepo *
           this.vbrSettings.vbrServers *
-          ((timeVar1 + timeVar2 + timeVar3) * 2) + // Repos * vbrServers
+          ((timeVar1 * 9 + timeVar2 + timeVar3) * 2) + 
         this.vbrSettings.vbrAvNumProxy *
           this.vbrSettings.vbrServers *
-          ((timeVar1 + timeVar2) * 3) + // Proxies * vbrServers
+          ((timeVar1 * 15 + timeVar2) * 3) + 
         this.vbrSettings.vbrAvNumWan *
           this.vbrSettings.vbrServers *
           timeVar1 *
-          11 + // WAN Acc * vbrServers
+          11 + 
         this.vbrSettings.vbrAvJobsServer *
           this.vbrSettings.vbrServers *
           timeVar1 *
-          2 + // Jobs * vbrServers
-        timeVar2 * (4 + 184 * this.vbrSettings.vbrServers)) * // additional value
-      this.unknown.unknownParamExtended; // Unknown param
+          2 + 
+        timeVar2 * (4 + 184 * this.vbrSettings.vbrServers)) * 
+      this.unknown.unknownParamExtended; 
     return result;
+  }
+
+  vbrPerf(): number{
+    const monthDays = 30.44 * this.vbrSettings.historicPerfData;
+    const timeVar1 = (96 * 7) + (13 * monthDays);
+    const timeVar2 = (96 * 7) + (25 * monthDays); 
+    const timeVar3 = (24 * 7) + (2 * monthDays); 
+    const part1 = (((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) * timeVar1) * 12);
+    const part2 = ((this.vbrSettings.vbrAvNumRepo  * this.vbrSettings.vbrServers) * ((timeVar1 * 9) + (timeVar2 * 1) + (timeVar3 * 2)));
+    const part3 = ((this.vbrSettings.vbrAvNumProxy * this.vbrSettings.vbrServers) * ((timeVar1 * 15) + (timeVar2 * 3)));
+    const part4 = ((this.vbrSettings.vbrAvNumWan * this.vbrSettings.vbrServers) * ((timeVar3 * 11)));
+    const part5 = (((this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers) * timeVar1) * 2);
+    const part6 = ((24*7) + (25 * monthDays)) * (4+(184 * this.vbrSettings.vbrServers))
+    const returnVal = (part1 + part2 + part3 + part4 + part5 + part6) *  this.unknown.unknownParamExtended;
+    return returnVal
   }
 
   vbrPerft() {
     const monthDays = 30.44 * this.vbrSettings.historicPerfData;
-    const timeVar1 = 96 * 7 + 13 * monthDays; // 96 hours? * 7 * 13 * monthDays
-    const timeVar2 = 96 * 7 + 25 * monthDays; // 4
+    const timeVar1 = (96 * 7) + (13 * monthDays); 
+    const timeVar2 = (96 * 7) + (25 * monthDays); 
     const result =
       ((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) *
         timeVar1 *
@@ -82,7 +85,7 @@ export class PerformanceSize {
             4 *
               this.vbrSettings.vbrAvJobsServer *
               this.vbrSettings.vbrServers)) *
-      this.unknown.unknownParamExtended; // Unknown param
+      this.unknown.unknownParamExtended; 
     return result;
   }
 }

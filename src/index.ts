@@ -1,18 +1,8 @@
 // Main interface for the app
 
-import {
-  General,
-  HostSizeInter,
-  HvHostSizeInter,
-  DatastoreSizeInter,
-  OtherDataInter,
-  EventsDataInter,
-  HvEventsDataInter,
-} from './Interfaces';
-
 import { InfraSettings, VeeamSettings } from './Settings'
 
-import {VmSizeInter, HvVmSizeInter, VmSizeCal} from './VmSize';
+import { VmSizeCal} from './VmSize';
 import { DataStoreSizeCal } from './DatastoreSize';
 import { HostSizeCal } from './HostSize';
 import { OtherDataSizeCal} from './OtherDataSize';
@@ -21,16 +11,12 @@ import { PerformanceSize } from './PerformanceSize';
 import { VbrEventsCal } from './VbrEvents';
 import { VbrDbTime } from './VbrDbTime';
 
-interface formData {
-
-}
-
 
 document.getElementById('simpleNextBtn')?.addEventListener('click', ()=> {
   const vmQty = (document.getElementById('vmQty') as HTMLInputElement).value;
   const hostQty = (document.getElementById('hostQty') as HTMLInputElement).value;
 
-  // create new instance of the Requiremets class below
+  // create new instance of the requirements class below
   const requirements = new Requirements();
 
   // Check if the advanced is checked
@@ -51,27 +37,23 @@ document.getElementById('simpleNextBtn')?.addEventListener('click', ()=> {
     (document.getElementById('eventsHistory') as HTMLInputElement).value = settings.eventsHistory.toString();
     (document.getElementById('vappQty') as HTMLInputElement).value = settings.vappQty.toString(); 
     (document.getElementById('datastoreQty') as HTMLInputElement).value = settings.datastoreQty.toString();
+    (document.getElementById('avNicsVM') as HTMLInputElement).value = settings.avNicsVM.toString();
+
+    document.getElementById('advancedForm')?.classList.toggle('d-none');
   } else {
 
     // If advanced isn't selected the run the calculation using the ratios only
     requirements.runCal(parseInt(vmQty), parseInt(hostQty));
-    const r = requirements;
-    const totalCap = r.vmCap + r.hostCap + r.dataStoreCap + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData;
-    (document.getElementById('vmDataGB') as HTMLInputElement).innerHTML = r.vmCap.toFixed(2);
-    (document.getElementById('hostDataGB') as HTMLInputElement).innerHTML = r.hostCap.toFixed(2);
-    (document.getElementById('dataStoreGB') as HTMLInputElement).innerHTML = r.dataStoreCap.toFixed(2);
-    (document.getElementById('eventGB') as HTMLInputElement).innerHTML = r.eventsData.toFixed(2);
-    (document.getElementById('vbrperfGB') as HTMLInputElement).innerHTML = r.vbrPerfData.toFixed(2);
-    (document.getElementById('vbrEventGB') as HTMLInputElement).innerHTML = r.vbrEventsData.toFixed(2);
-    (document.getElementById('vbrJobGB') as HTMLInputElement).innerHTML = r.vbrDbTimeData.toFixed(2);
-    (document.getElementById('totalCap') as HTMLInputElement).innerHTML = totalCap.toFixed(2);
+
+    // Output results to the DOM
+    setOutput(requirements);
   }
 })
 
 // 
 document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
   // Create a new instances of the Requirements class
-  const requiremets = new Requirements();
+  const requirements = new Requirements();
 
   // Grab the updated elements from the form
   const vmQty = parseInt((document.getElementById('vmQty') as HTMLInputElement).value);
@@ -85,6 +67,7 @@ document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
   const eventsHistory = parseInt((document.getElementById('eventsHistory') as HTMLInputElement).value);
   const vappQty = parseInt((document.getElementById('vappQty') as HTMLInputElement).value);
   const datastoreQty = parseInt((document.getElementById('datastoreQty') as HTMLInputElement).value);
+  const avNicsVM = parseInt((document.getElementById('avNicsVM') as HTMLInputElement).value);
 
   // Create a new single object with the form data
   const data = {
@@ -98,21 +81,25 @@ document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
     avSdPerHost,
     eventsHistory,
     vappQty,
-    datastoreQty
+    datastoreQty,
+    avNicsVM
   }
   // update the settings which uses a "set"
-  requiremets.settings.updateSettings = data;
+  requirements.settings.updateSettings = data;
 
   // Update the veeam settings with the timescales which are the only variable
-  // All other settings are caculated from the VM Quantity
-  requiremets.veeamSettings.updateSettings(historicPerfData, eventsHistory);
+  // All other settings are calculated from the VM Quantity
+  requirements.veeamSettings.updateSettings(historicPerfData, eventsHistory);
 
   // Now run the calculation based on the new settings
-  requiremets.runCal(vmQty, hostQty);
+  requirements.runCal(vmQty, hostQty);
 
   // Output the final results to the DOM
-  const r = requiremets;
-  const totalCap = r.vmCap + r.hostCap + r.dataStoreCap + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData;
+  setOutput(requirements);
+});
+
+function setOutput(r: Requirements): void {
+  const totalCap = (r.vmCap + r.hostCap + r.dataStoreCap + r.otherData + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData) * 1.2;
   (document.getElementById('vmDataGB') as HTMLInputElement).innerHTML = r.vmCap.toFixed(2);
   (document.getElementById('hostDataGB') as HTMLInputElement).innerHTML = r.hostCap.toFixed(2);
   (document.getElementById('dataStoreGB') as HTMLInputElement).innerHTML = r.dataStoreCap.toFixed(2);
@@ -122,7 +109,7 @@ document.getElementById('advancedNextBtn')?.addEventListener('click', ()=> {
   (document.getElementById('vbrEventGB') as HTMLInputElement).innerHTML = r.vbrEventsData.toFixed(2);
   (document.getElementById('vbrJobGB') as HTMLInputElement).innerHTML = r.vbrDbTimeData.toFixed(2);
   (document.getElementById('totalCap') as HTMLInputElement).innerHTML = totalCap.toFixed(2);
-})
+}
 
 class Requirements {
   vmCap = 0;
@@ -157,6 +144,7 @@ class Requirements {
       Proxies: ${this.veeamSettings.vbrAvNumProxy}
       Repos: ${this.veeamSettings.vbrAvNumRepo},
       Jobs: ${this.veeamSettings.vbrAvJobsServer},
+      vms per-job: ${this.veeamSettings.vmsPerJobRatio},
       Restore: ${this.veeamSettings.vbrRestore},
       `
     )

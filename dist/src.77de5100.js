@@ -131,7 +131,6 @@ function () {
   function InfraSettings() {
     // Calculation ratios
     this.datastoreRatio = 200; // vm to datastore ratio
-    // private hostRatio = 50; // provided by user input
 
     this.rPoolRatio = 100; // vm to resource pool ratio
 
@@ -143,6 +142,7 @@ function () {
     this.avNumDsOneVm = 0; // Average datastores with one vm- not changeable
 
     this.avNicsHost = 4;
+    this.avNicsVM = 1;
     this.avNumVDisksVm = 3;
     this.avNumGDiskVm = 0;
     this.avSdPerHost = 2;
@@ -185,7 +185,8 @@ function () {
       avSdPerHost: this.avSdPerHost,
       avSpPerHost: this.avSpPerHost,
       historicPerfData: this.historicPerfData,
-      eventsHistory: this.eventsHistory
+      eventsHistory: this.eventsHistory,
+      avNicsVM: this.avNicsVM
     };
   };
 
@@ -202,6 +203,7 @@ function () {
       this.clusterQty = data.clusterQty;
       this.vappQty = data.vappQty;
       this.datastoreQty = data.datastoreQty;
+      this.avNicsVM = data.avNicsVM;
     },
     enumerable: false,
     configurable: true
@@ -217,15 +219,12 @@ function () {
   function VeeamSettings() {
     // Veeam ratios
     this.vbrVmRatio = 1500;
-    this.proxyToVmRatio = 400; // TODO need to look at this
-
+    this.proxyToVmRatio = 400;
     this.repoRatio = 2;
     this.wanAccRatio = 0;
     this.vmsPerJobRatio = 70;
-    this.jobsRatio = 70; // might not need this
-
-    this.restoreRatio = 1000; // one restore per 1000 VMs per-day
-    // Calculated values
+    this.jobsRatio = 70;
+    this.restoreRatio = 1000; // Calculated values
 
     this.entermanQty = 1; // hard coded
 
@@ -241,23 +240,20 @@ function () {
     this.vbrRestore = 0; // non-calculated
 
     this.vmQty = 0;
-    this.historicPerfData = 12; // only updated if advanced is used
-
+    this.historicPerfData = 12;
     this.eventsHistory = 12;
   }
 
   VeeamSettings.prototype.updateQty = function (vmCount) {
     this.vmQty = vmCount;
     this.vbrServers = Math.ceil(vmCount / this.vbrVmRatio);
-    this.vbrAvNumRepo = Math.ceil(this.vbrServers * this.repoRatio); // this.vbrAvNumProxy = Math.ceil(vmCount / this.proxyToVmRatio);
-
+    this.vbrAvNumRepo = Math.ceil(this.vbrServers * this.repoRatio);
     this.vbrAvNumProxy = Math.ceil(this.proxyCal());
     this.vbrAvJobsServer = Math.ceil(vmCount / this.jobsRatio) / this.vbrServers;
     this.vbrRestore = Math.ceil(vmCount / this.restoreRatio);
   };
 
   VeeamSettings.prototype.updateSettings = function (historicPerfData, eventsHistory) {
-    // only exception are these
     this.historicPerfData = historicPerfData;
     this.eventsHistory = eventsHistory;
   };
@@ -308,35 +304,33 @@ function () {
   function VmSizeCal(settings) {
     this.unknown = new UnknownParam_1.Unknown();
     this.settings = settings;
-  }
+  } // Advanced calculation
+
 
   VmSizeCal.prototype.vmSize = function () {
-    var monthDays = 30.44 * this.settings.historicPerfData; // data.historicPerData
-
+    var monthDays = 30.44 * this.settings.historicPerfData;
     var vmCount = this.settings.vmQty; // changed the name so it doesn't break
 
-    var result = vmCount * ( // only actual varible that is added as part of the method
-    (96 * 7 + 13 * monthDays) * (43 + 10 * this.settings.avNumDsOneVm + //data.avNumDsOneVm
-    // (5 * this.settings.avNicsHost) +
-    6 * this.settings.avNumVDisksVm) + (48 * 7 + 2 * monthDays) * (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * //data.avNumGDiskVm
-    this.unknown.unknownParamExtended;
+    var result = vmCount * ((96 * 7 + 13 * monthDays) * (43 + 10 * this.settings.avNumDsOneVm + 5 * this.settings.avNicsVM + 6 * this.settings.avNumVDisksVm) + (48 * 7 + 2 * monthDays) * (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * this.unknown.unknownParamExtended;
     return result;
-  };
+  }; // NOT in use currently - maybe for future (Hyper-V)
+
 
   VmSizeCal.prototype.hvVmSize = function (data) {
     var monthDays = 30.44 * data.historicPerfData;
     var result = data.hvVmCount * ((288 * 7 + 13 * monthDays) * (20 + 8 * 3 * data.haAvNumVdVm + 3 * data.hvAvNumNicsVm) + (48 * 7 + 2 * monthDays) * (2 + 2 * data.haAvNumVdVm) + (48 * 7 + 4 * monthDays) * (2 * data.hvAvNumGdVm)) * this.unknown.unknownParamExtended;
     return result;
-  }; // Using in the VeeamOne.ts
+  }; // Typical calculation
 
 
   VmSizeCal.prototype.vmSizet = function () {
     var monthDays = 30.44 * this.settings.historicPerfData;
     var vmCount = this.settings.vmQty; // changed the name so it doesn't break
 
-    var result = vmCount * ((288 * 7 + 13 * monthDays) * (47 + 13 * this.settings.avNumDsOneVm + 5 * this.settings.avNicsHost + 6 * this.settings.avNumDsOneVm) + (48 * 7 + 2 * monthDays) * (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * this.unknown.unknownParamExtended;
+    var result = vmCount * ((288 * 7 + 13 * monthDays) * (47 + 13 * this.settings.avNumDsOneVm + 5 * this.settings.avNicsVM + 6 * this.settings.avNumVDisksVm) + (48 * 7 + 2 * monthDays) * (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * this.unknown.unknownParamExtended;
     return result;
-  };
+  }; // NOT in use currently - maybe for future (Hyper-V)
+
 
   VmSizeCal.prototype.hvVmSizet = function (data) {
     var monthDays = 30.44 * data.historicPerfData;
@@ -368,8 +362,7 @@ function () {
 
   DataStoreSizeCal.prototype.datastoreSize = function () {
     var monthDays = 30.44 * this.settings.historicPerfData;
-    var result = this.settings.datastoreQty * ( // calculated value, was data.datastores
-    (96 * 7 + 13 * monthDays) * 10 + (48 * 7 + 2 * monthDays) * 2) * this.unknown.unknownParamExtended;
+    var result = this.settings.datastoreQty * ((96 * 7 + 13 * monthDays) * 10 + (48 * 7 + 2 * monthDays) * 2) * this.unknown.unknownParamExtended;
     return result;
   };
 
@@ -404,8 +397,7 @@ function () {
 
   HostSizeCal.prototype.hostSize = function () {
     var monthDays = 30.44 * this.settings.historicPerfData;
-    var result = this.settings.hostQty * ( // calculated property
-    288 * 7 + 13 * monthDays) * (49 + 12 * this.settings.datastoreQty / this.settings.hostQty + 9 * this.settings.avNicsHost + 6 * (this.settings.avSdPerHost + this.settings.avSpPerHost)) * this.unknown.unknownParamExtended;
+    var result = this.settings.hostQty * (288 * 7 + 13 * monthDays) * (49 + 12 * this.settings.datastoreQty / this.settings.hostQty + 9 * this.settings.avNicsHost + 6 * (this.settings.avSdPerHost + this.settings.avSpPerHost)) * this.unknown.unknownParamExtended;
     return result;
   }; // will probably delete
 
@@ -451,7 +443,7 @@ function () {
 
   OtherDataSizeCal.prototype.otherData = function () {
     var monthDays = 30.44 * this.settings.historicPerfData;
-    var result = ((this.settings.resourcePoolQty + this.settings.vappQty) * (288 * 7 + 13 * monthDays) * 24 + this.settings.resourcePoolQty * (288 * 7 + 13 * monthDays) * 27) * this.unknown.unknownParamExtended;
+    var result = ((this.settings.resourcePoolQty + this.settings.vappQty) * (288 * 7 + 13 * monthDays) * 24 + this.settings.clusterQty * (288 * 7 + 13 * monthDays) * 27) * this.unknown.unknownParamExtended;
     return result;
   };
 
@@ -459,7 +451,7 @@ function () {
     var monthDays = 30.44 * data.historicPerfData;
     var result = (5 * ((96 * 7 + 13 * monthDays) * 2 + (48 * 7 + 3 * monthDays) * 1) + this.unknown.unknownParam * ((96 * 7 + 13 * monthDays) * 2 + (48 * 7 + 3 * monthDays) * 1)) * this.unknown.unknownParamExtended;
     return result;
-  }; // has clusters which the other don't
+  }; // has clusters which the other doesn't
 
 
   OtherDataSizeCal.prototype.otherDatat = function () {
@@ -496,14 +488,12 @@ function () {
 
   EventsDataCal.prototype.eventsData = function () {
     var vmCount = this.settings.vmQty;
-    var result = (vmCount * 28.6 + this.settings.hostQty * 765.8 + this.settings.datastoreQty * 7.3 + this.settings.clusterQty * 6.2 + this.settings.vappQty * 0.1) * (30.44 * this.settings.eventsHistory) / // data.eventsData
-    1024 / 1024;
+    var result = (vmCount * 28.6 + this.settings.hostQty * 765.8 + this.settings.datastoreQty * 7.3 + this.settings.clusterQty * 6.2 + this.settings.vappQty * 0.1) * (30.44 * this.settings.eventsHistory) / 1024 / 1024;
     return result;
   };
 
   EventsDataCal.prototype.hvEventsData = function (data) {
-    var result = (data.vmCount * 0.1 + data.hosts * 527.2) * (30.44 * this.settings.eventsHistory) / // data.eventsData
-    1024 / 1024;
+    var result = (data.vmCount * 0.1 + data.hosts * 527.2) * (30.44 * this.settings.eventsHistory) / 1024 / 1024;
     return result;
   };
 
@@ -529,32 +519,35 @@ function () {
     this.vbrSettings = veeamSettings;
   }
 
+  PerformanceSize.prototype.vbrPerfold = function () {
+    var monthDays = 30.44 * this.vbrSettings.historicPerfData;
+    var timeVar1 = 96 * 7 + 13 * monthDays;
+    var timeVar2 = 96 * 7 + 25 * monthDays;
+    var timeVar3 = 24 * 7 + 2 * monthDays;
+    var result = ((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) * timeVar1 * 12 + this.vbrSettings.vbrAvNumRepo * this.vbrSettings.vbrServers * ((timeVar1 * 9 + timeVar2 + timeVar3) * 2) + this.vbrSettings.vbrAvNumProxy * this.vbrSettings.vbrServers * ((timeVar1 * 15 + timeVar2) * 3) + this.vbrSettings.vbrAvNumWan * this.vbrSettings.vbrServers * timeVar1 * 11 + this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers * timeVar1 * 2 + timeVar2 * (4 + 184 * this.vbrSettings.vbrServers)) * this.unknown.unknownParamExtended;
+    return result;
+  };
+
   PerformanceSize.prototype.vbrPerf = function () {
     var monthDays = 30.44 * this.vbrSettings.historicPerfData;
-    var timeVar1 = 96 * 7 + 13 * monthDays; // 96 hours? * 7 * 13 * monthDays
-
-    var timeVar2 = 96 * 7 + 25 * monthDays; // 4
-
-    var timeVar3 = 24 * 7 + 2 * monthDays; // hours in 2 x historic years?
-
-    var result = ((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) * timeVar1 * 12 + this.vbrSettings.vbrAvNumRepo * this.vbrSettings.vbrServers * ((timeVar1 + timeVar2 + timeVar3) * 2) + // Repos * vbrServers
-    this.vbrSettings.vbrAvNumProxy * this.vbrSettings.vbrServers * ((timeVar1 + timeVar2) * 3) + // Proxies * vbrServers
-    this.vbrSettings.vbrAvNumWan * this.vbrSettings.vbrServers * timeVar1 * 11 + // WAN Acc * vbrServers
-    this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers * timeVar1 * 2 + // Jobs * vbrServers
-    timeVar2 * (4 + 184 * this.vbrSettings.vbrServers)) * // additional value
-    this.unknown.unknownParamExtended; // Unknown param
-
-    return result;
+    var timeVar1 = 96 * 7 + 13 * monthDays;
+    var timeVar2 = 96 * 7 + 25 * monthDays;
+    var timeVar3 = 24 * 7 + 2 * monthDays;
+    var part1 = (this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) * timeVar1 * 12;
+    var part2 = this.vbrSettings.vbrAvNumRepo * this.vbrSettings.vbrServers * (timeVar1 * 9 + timeVar2 * 1 + timeVar3 * 2);
+    var part3 = this.vbrSettings.vbrAvNumProxy * this.vbrSettings.vbrServers * (timeVar1 * 15 + timeVar2 * 3);
+    var part4 = this.vbrSettings.vbrAvNumWan * this.vbrSettings.vbrServers * (timeVar3 * 11);
+    var part5 = this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers * timeVar1 * 2;
+    var part6 = (24 * 7 + 25 * monthDays) * (4 + 184 * this.vbrSettings.vbrServers);
+    var returnVal = (part1 + part2 + part3 + part4 + part5 + part6) * this.unknown.unknownParamExtended;
+    return returnVal;
   };
 
   PerformanceSize.prototype.vbrPerft = function () {
     var monthDays = 30.44 * this.vbrSettings.historicPerfData;
-    var timeVar1 = 96 * 7 + 13 * monthDays; // 96 hours? * 7 * 13 * monthDays
-
-    var timeVar2 = 96 * 7 + 25 * monthDays; // 4
-
-    var result = ((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) * timeVar1 * 12 + this.vbrSettings.vbrAvNumRepo * this.vbrSettings.vbrServers * (timeVar1 * 14 + timeVar2 * 1 + (168 + 2 * monthDays) * 2) + this.vbrSettings.vbrAvNumProxy * this.vbrSettings.vbrServers * (timeVar1 * 15 + timeVar2 * 3) + this.vbrSettings.vbrAvNumWan * this.vbrSettings.vbrServers * timeVar1 * 14 + this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers * timeVar1 * 2 + (168 + 25 * monthDays) * (4 + 4 * this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers)) * this.unknown.unknownParamExtended; // Unknown param
-
+    var timeVar1 = 96 * 7 + 13 * monthDays;
+    var timeVar2 = 96 * 7 + 25 * monthDays;
+    var result = ((this.vbrSettings.entermanQty + this.vbrSettings.vbrServers) * timeVar1 * 12 + this.vbrSettings.vbrAvNumRepo * this.vbrSettings.vbrServers * (timeVar1 * 14 + timeVar2 * 1 + (168 + 2 * monthDays) * 2) + this.vbrSettings.vbrAvNumProxy * this.vbrSettings.vbrServers * (timeVar1 * 15 + timeVar2 * 3) + this.vbrSettings.vbrAvNumWan * this.vbrSettings.vbrServers * timeVar1 * 14 + this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers * timeVar1 * 2 + (168 + 25 * monthDays) * (4 + 4 * this.vbrSettings.vbrAvJobsServer * this.vbrSettings.vbrServers)) * this.unknown.unknownParamExtended;
     return result;
   };
 
@@ -603,7 +596,7 @@ function () {
   }
 
   VbrDbTime.prototype.vbrDb = function () {
-    var result = this.settings.historicPerfData / 12 * this.settings.vbrServers * this.settings.vbrAvJobsServer * (365 * 2179 + 365 * 1436 * this.settings.vbrAvJobsServer + 366 * 3262 * this.settings.vbrRestore) / 1024 / 1024 / 1024;
+    var result = this.settings.historicPerfData / 12 * this.settings.vbrServers * this.settings.vbrAvJobsServer * (365 * 2179 + 365 * 1436 * this.settings.vmsPerJobRatio + 366 * 3262 * this.settings.vbrRestore) / 1024 / 1024 / 1024;
     return result;
   };
 
@@ -639,8 +632,10 @@ var VbrEvents_1 = require("./VbrEvents");
 var VbrDbTime_1 = require("./VbrDbTime");
 
 (_a = document.getElementById('simpleNextBtn')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', function () {
+  var _a;
+
   var vmQty = document.getElementById('vmQty').value;
-  var hostQty = document.getElementById('hostQty').value; // create new instance of the Requiremets class below
+  var hostQty = document.getElementById('hostQty').value; // create new instance of the requirements class below
 
   var requirements = new Requirements(); // Check if the advanced is checked
 
@@ -660,25 +655,19 @@ var VbrDbTime_1 = require("./VbrDbTime");
     document.getElementById('eventsHistory').value = settings.eventsHistory.toString();
     document.getElementById('vappQty').value = settings.vappQty.toString();
     document.getElementById('datastoreQty').value = settings.datastoreQty.toString();
+    document.getElementById('avNicsVM').value = settings.avNicsVM.toString();
+    (_a = document.getElementById('advancedForm')) === null || _a === void 0 ? void 0 : _a.classList.toggle('d-none');
   } else {
     // If advanced isn't selected the run the calculation using the ratios only
-    requirements.runCal(parseInt(vmQty), parseInt(hostQty));
-    var r = requirements;
-    var totalCap = r.vmCap + r.hostCap + r.dataStoreCap + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData;
-    document.getElementById('vmDataGB').innerHTML = r.vmCap.toFixed(2);
-    document.getElementById('hostDataGB').innerHTML = r.hostCap.toFixed(2);
-    document.getElementById('dataStoreGB').innerHTML = r.dataStoreCap.toFixed(2);
-    document.getElementById('eventGB').innerHTML = r.eventsData.toFixed(2);
-    document.getElementById('vbrperfGB').innerHTML = r.vbrPerfData.toFixed(2);
-    document.getElementById('vbrEventGB').innerHTML = r.vbrEventsData.toFixed(2);
-    document.getElementById('vbrJobGB').innerHTML = r.vbrDbTimeData.toFixed(2);
-    document.getElementById('totalCap').innerHTML = totalCap.toFixed(2);
+    requirements.runCal(parseInt(vmQty), parseInt(hostQty)); // Output results to the DOM
+
+    setOutput(requirements);
   }
 }); // 
 
 (_b = document.getElementById('advancedNextBtn')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', function () {
   // Create a new instances of the Requirements class
-  var requiremets = new Requirements(); // Grab the updated elements from the form
+  var requirements = new Requirements(); // Grab the updated elements from the form
 
   var vmQty = parseInt(document.getElementById('vmQty').value);
   var hostQty = parseInt(document.getElementById('hostQty').value);
@@ -690,7 +679,8 @@ var VbrDbTime_1 = require("./VbrDbTime");
   var avSdPerHost = parseInt(document.getElementById('avSdPerHost').value);
   var eventsHistory = parseInt(document.getElementById('eventsHistory').value);
   var vappQty = parseInt(document.getElementById('vappQty').value);
-  var datastoreQty = parseInt(document.getElementById('datastoreQty').value); // Create a new single object with the form data
+  var datastoreQty = parseInt(document.getElementById('datastoreQty').value);
+  var avNicsVM = parseInt(document.getElementById('avNicsVM').value); // Create a new single object with the form data
 
   var data = {
     vmQty: vmQty,
@@ -703,18 +693,22 @@ var VbrDbTime_1 = require("./VbrDbTime");
     avSdPerHost: avSdPerHost,
     eventsHistory: eventsHistory,
     vappQty: vappQty,
-    datastoreQty: datastoreQty
+    datastoreQty: datastoreQty,
+    avNicsVM: avNicsVM
   }; // update the settings which uses a "set"
 
-  requiremets.settings.updateSettings = data; // Update the veeam settings with the timescales which are the only variable
-  // All other settings are caculated from the VM Quantity
+  requirements.settings.updateSettings = data; // Update the veeam settings with the timescales which are the only variable
+  // All other settings are calculated from the VM Quantity
 
-  requiremets.veeamSettings.updateSettings(historicPerfData, eventsHistory); // Now run the calculation based on the new settings
+  requirements.veeamSettings.updateSettings(historicPerfData, eventsHistory); // Now run the calculation based on the new settings
 
-  requiremets.runCal(vmQty, hostQty); // Output the final results to the DOM
+  requirements.runCal(vmQty, hostQty); // Output the final results to the DOM
 
-  var r = requiremets;
-  var totalCap = r.vmCap + r.hostCap + r.dataStoreCap + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData;
+  setOutput(requirements);
+});
+
+function setOutput(r) {
+  var totalCap = (r.vmCap + r.hostCap + r.dataStoreCap + r.otherData + r.eventsData + r.vbrPerfData + r.vbrEventsData + r.vbrDbTimeData) * 1.2;
   document.getElementById('vmDataGB').innerHTML = r.vmCap.toFixed(2);
   document.getElementById('hostDataGB').innerHTML = r.hostCap.toFixed(2);
   document.getElementById('dataStoreGB').innerHTML = r.dataStoreCap.toFixed(2);
@@ -724,7 +718,7 @@ var VbrDbTime_1 = require("./VbrDbTime");
   document.getElementById('vbrEventGB').innerHTML = r.vbrEventsData.toFixed(2);
   document.getElementById('vbrJobGB').innerHTML = r.vbrDbTimeData.toFixed(2);
   document.getElementById('totalCap').innerHTML = totalCap.toFixed(2);
-});
+}
 
 var Requirements =
 /** @class */
@@ -755,7 +749,7 @@ function () {
   Requirements.prototype.runCal = function (vmCount, hosts) {
     this.settings.updateQty(vmCount, hosts);
     this.veeamSettings.updateQty(vmCount);
-    console.log("\n      vbr servers: " + this.veeamSettings.vbrServers + "\n      Proxies: " + this.veeamSettings.vbrAvNumProxy + "\n      Repos: " + this.veeamSettings.vbrAvNumRepo + ",\n      Jobs: " + this.veeamSettings.vbrAvJobsServer + ",\n      Restore: " + this.veeamSettings.vbrRestore + ",\n      ");
+    console.log("\n      vbr servers: " + this.veeamSettings.vbrServers + "\n      Proxies: " + this.veeamSettings.vbrAvNumProxy + "\n      Repos: " + this.veeamSettings.vbrAvNumRepo + ",\n      Jobs: " + this.veeamSettings.vbrAvJobsServer + ",\n      vms per-job: " + this.veeamSettings.vmsPerJobRatio + ",\n      Restore: " + this.veeamSettings.vbrRestore + ",\n      ");
     var vmSizeCapCal = new VmSize_1.VmSizeCal(this.settings);
     var hostSizeCal = new HostSize_1.HostSizeCal(this.settings);
     var datastoreSizeCal = new DatastoreSize_1.DataStoreSizeCal(this.settings);
@@ -819,7 +813,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51851" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "15164" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

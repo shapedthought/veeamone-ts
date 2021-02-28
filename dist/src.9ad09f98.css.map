@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.css"],"names":[],"mappings":"AAAA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA;AACA","file":"src.9ad09f98.css","sourceRoot":"..\\src","sourcesContent":["body {\r\n    background: #005F4B;\r\n}\r\n\r\nlabel {\r\n    color: white;\r\n}\r\n\r\nh4, h3, li {\r\n    color: white;\r\n}\r\n"]}

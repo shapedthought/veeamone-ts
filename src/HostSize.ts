@@ -2,15 +2,6 @@ import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
 import { InfraSettings } from './Settings';
 
-export interface HostSizeInter extends General {
-  hosts: number; // Hosts
-  datastores: number; // Datastores
-  avNicsHost: number; // Average number of NICs per Host
-  avVswitchHost: number;
-  avSdPerHost: number; // Average number of Storage Adapter per Host
-  avSpPerHost: number; // Average number of Storage Path per Host
-}
-
 export interface HvHostSizeInter extends General {
   hvHosts: number; // Hosts
   hvAvNumVol: number; // Average number of volumes per Host
@@ -27,11 +18,11 @@ export class HostSizeCal {
   }
 
   // Advanced
-  hostSize(): number { // data: HostSizeInter
+  hostSize(): number { 
 
     const monthDays = 30.44 * this.settings.historicPerfData;
     const result =
-      this.settings.hostQty * // calculated property
+      this.settings.hostQty * 
       (288 * 7 + 13 * monthDays) *
       (49 +
         (12 * this.settings.datastoreQty) / this.settings.hostQty +

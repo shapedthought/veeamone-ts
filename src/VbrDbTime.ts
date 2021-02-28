@@ -1,10 +1,4 @@
-import { VbrCal } from './VbrCal';
 import { VeeamSettings } from './Settings';
-
-interface VbrDbTimeInter {
-  vmQty: number; // added
-  historicPerfData: number;
-}
 
 export class VbrDbTime {
   private settings: VeeamSettings;
@@ -19,7 +13,7 @@ export class VbrDbTime {
         this.settings.vbrServers *
         this.settings.vbrAvJobsServer *
         (365 * 2179 +
-          365 * 1436 * this.settings.vbrAvJobsServer +
+          365 * 1436 * this.settings.vmsPerJobRatio +
           366 * 3262 * this.settings.vbrRestore)) /
       1024 /
       1024 /

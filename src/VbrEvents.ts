@@ -1,14 +1,5 @@
 import {VeeamSettings} from './Settings';
 
-interface VbrEventsInter {
-    vbrNumVbrEm: number; // Veeam Backup & Replication Enterprise Manager
-    vbrServers: number; // Veeam Backup & Replication servers
-    vbrAvNumRepo: number; // Average number of Repositories  per VBR
-    vbrAvNumProxy: number; // Average number of Proxy  per VBR
-    vbrAvNumWan: number; // Average number of WAN Accelerators  per VBR
-    eventsData: number; // Period of time for keeping events data
-  }
-
 export class VbrEventsCal {
   private settings: VeeamSettings;
 
@@ -29,8 +20,4 @@ export class VbrEventsCal {
     return result;
   }
 
-  // Same as advanced
-  // vbrEventst(data: VbrEventsInter) {
-  //   return this.vbrEvents(data);
-  // }
 }

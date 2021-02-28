@@ -10,6 +10,7 @@ interface settingsUpdateInter {
   clusterQty: number,
   vappQty: number,
   datastoreQty: number,
+  avNicsVM: number
 }
 
 interface returnSettings {
@@ -25,12 +26,12 @@ interface returnSettings {
   avSpPerHost: number;
   historicPerfData: number;
   eventsHistory: number;
+  avNicsVM: number;
 }
 
 export class InfraSettings {
   // Calculation ratios
   private datastoreRatio = 200; // vm to datastore ratio
-  // private hostRatio = 50; // provided by user input
   private rPoolRatio = 100; // vm to resource pool ratio
   private clusterRatio = 10; // host to clusters
   private vappRatio = 50; // vm to vapp ratio
@@ -38,6 +39,7 @@ export class InfraSettings {
   //Average values
   avNumDsOneVm = 0; // Average datastores with one vm- not changeable
   avNicsHost = 4;
+  avNicsVM = 1;
   avNumVDisksVm = 3;
   avNumGDiskVm = 0;
   avSdPerHost = 2;
@@ -79,7 +81,8 @@ export class InfraSettings {
       avSdPerHost: this.avSdPerHost,
       avSpPerHost: this.avSpPerHost,
       historicPerfData: this.historicPerfData,
-      eventsHistory: this.eventsHistory
+      eventsHistory: this.eventsHistory,
+      avNicsVM: this.avNicsVM
     }
   }
 
@@ -95,18 +98,19 @@ export class InfraSettings {
       this.clusterQty = data.clusterQty;
       this.vappQty = data.vappQty;
       this.datastoreQty = data.datastoreQty;
+      this.avNicsVM = data.avNicsVM;
   }
 }
 
 export class VeeamSettings {
   // Veeam ratios
   vbrVmRatio = 1500;
-  proxyToVmRatio = 400; // TODO need to look at this
+  proxyToVmRatio = 400; 
   repoRatio = 2;
   wanAccRatio = 0;
   vmsPerJobRatio = 70;
-  jobsRatio = 70; // might not need this
-  restoreRatio = 1000; // one restore per 1000 VMs per-day
+  jobsRatio = 70; 
+  restoreRatio = 1000; 
 
   // Calculated values
   entermanQty = 1; // hard coded
@@ -119,21 +123,19 @@ export class VeeamSettings {
 
   // non-calculated
   vmQty = 0;
-  historicPerfData = 12; // only updated if advanced is used
+  historicPerfData = 12; 
   eventsHistory = 12;
 
   updateQty(vmCount: number){
     this.vmQty = vmCount;
     this.vbrServers = Math.ceil(vmCount / this.vbrVmRatio);
     this.vbrAvNumRepo = Math.ceil(this.vbrServers * this.repoRatio);
-    // this.vbrAvNumProxy = Math.ceil(vmCount / this.proxyToVmRatio);
     this.vbrAvNumProxy = Math.ceil(this.proxyCal());
     this.vbrAvJobsServer = Math.ceil(vmCount / this.jobsRatio) / this.vbrServers;
     this.vbrRestore = Math.ceil(vmCount / this.restoreRatio);
   }
 
   updateSettings(historicPerfData: number, eventsHistory: number) {
-    // only exception are these
     this.historicPerfData = historicPerfData;
     this.eventsHistory = eventsHistory;
   }

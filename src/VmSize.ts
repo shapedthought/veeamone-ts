@@ -2,15 +2,7 @@ import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
 import {InfraSettings } from './Settings';
 
-interface VmSizeInter extends General {
-  vmCount: number; // VMs
-  avNumDsOneVm: number; // Average number of Datastores where one VM stored
-  avNicsHost: number; // Average number of NICs per Host >> as in physical host
-  avNumVDisksVm: number; // Average number of virtual disks per VM
-  avNumGDiskVm: number; // Average number of Guest Disk per VM
-}
-
-// Interesting that this doesn't include NICS per-host where the VMware version does
+// Will remove if Hyper-V is used later
 interface HvVmSizeInter extends General {
   hvVmCount: number; // VMs
   hvAvNumNicsVm: number; // Average number of NICs per VM
@@ -27,22 +19,24 @@ class VmSizeCal {
     this.settings = settings;
   }
 
+  // Advanced calculation
   vmSize(): number { // data: VmSizeInter
-    const monthDays = 30.44 * this.settings.historicPerfData; // data.historicPerData
+    const monthDays = 30.44 * this.settings.historicPerfData; 
     const vmCount = this.settings.vmQty; // changed the name so it doesn't break
     const result =
-      vmCount * // only actual varible that is added as part of the method
+      vmCount * 
       (((96 * 7) + (13 * monthDays)) *
         (43 +
-          (10 * this.settings.avNumDsOneVm) +  //data.avNumDsOneVm
-          // (5 * this.settings.avNicsHost) +
+          (10 * this.settings.avNumDsOneVm) +  
+          (5 * this.settings.avNicsVM) + 
           (6 * this.settings.avNumVDisksVm)) +
         ((48 * 7) + (2 * monthDays)) *
-          (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * //data.avNumGDiskVm
+          (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) * 
       this.unknown.unknownParamExtended;
     return result;
   }
 
+  // NOT in use currently - maybe for future (Hyper-V)
   hvVmSize(data: HvVmSizeInter): number {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
@@ -55,7 +49,7 @@ class VmSizeCal {
     return result;
   }
 
-  // Using in the VeeamOne.ts
+  // Typical calculation
   vmSizet() {
     const monthDays = 30.44 * this.settings.historicPerfData;
     const vmCount = this.settings.vmQty; // changed the name so it doesn't break
@@ -64,14 +58,15 @@ class VmSizeCal {
       ((288 * 7 + 13 * monthDays) *
         (47 +
           13 * this.settings.avNumDsOneVm +
-          5 * this.settings.avNicsHost +
-          6 * this.settings.avNumDsOneVm) +
+          5 * this.settings.avNicsVM + 
+          6 * this.settings.avNumVDisksVm) +
         (48 * 7 + 2 * monthDays) *
           (2 * (this.settings.avNumDsOneVm + this.settings.avNumGDiskVm))) *
       this.unknown.unknownParamExtended;
     return result;
   }
 
+  // NOT in use currently - maybe for future (Hyper-V)
   hvVmSizet(data: HvVmSizeInter) {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
@@ -87,4 +82,4 @@ class VmSizeCal {
   }
 }
 
-export {VmSizeInter, HvVmSizeInter, VmSizeCal}
+export {VmSizeCal}

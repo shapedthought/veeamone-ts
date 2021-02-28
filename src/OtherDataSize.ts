@@ -2,12 +2,6 @@ import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
 import { InfraSettings } from './Settings';
 
-interface OtherDataInter extends General {
-  resourcePool: number; // Resource Pools
-  vapp: number; // vApps
-  clusters: number;
-}
-
 interface VhOtherDataInter extends General {
   hvHosts: number;
   historicPerfData: number;
@@ -31,7 +25,7 @@ export class OtherDataSizeCal {
 
     const result =
       ((this.settings.resourcePoolQty + this.settings.vappQty) * (288 * 7 + 13 * monthDays) * 24 +
-        this.settings.resourcePoolQty * (288 * 7 + 13 * monthDays) * 27) *
+        this.settings.clusterQty * (288 * 7 + 13 * monthDays) * 27) *
       this.unknown.unknownParamExtended;
     return result;
   }
@@ -46,7 +40,7 @@ export class OtherDataSizeCal {
     return result;
   }
 
-  // has clusters which the other don't
+  // has clusters which the other doesn't
   otherDatat(): number {
     const monthDays = 30.44 * this.settings.historicPerfData;
 
