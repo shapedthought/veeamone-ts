@@ -30,7 +30,7 @@ export class OtherDataSizeCal {
     return result;
   }
 
-  hvOtherData(data: General) {
+  hvOtherData(data: General): number {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
       (5 * ((96 * 7 + 13 * monthDays) * 2 + (48 * 7 + 3 * monthDays) * 1) +
@@ -52,7 +52,7 @@ export class OtherDataSizeCal {
   }
 
   // different interface to the advanced version
-  hvOtherDatat(data: VhOtherDataInter) {
+  hvOtherDatat(data: VhOtherDataInter): number {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
       (5 * ((288 * 7 + 13 * monthDays) * 7 + (48 * 7 + 3 * monthDays) * 3) +

@@ -7,7 +7,7 @@ export class VbrDbTime {
     this.settings = settings;
   }
 
-  vbrDb() {
+  vbrDb(): number {
     const result =
       ((this.settings.historicPerfData / 12) *
         this.settings.vbrServers *

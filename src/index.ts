@@ -134,7 +134,7 @@ class Requirements {
     this.veeamSettings.updateSettings(historicPerfData, eventsHistory)
   }
 
-  runCal(vmCount: number, hosts: number){
+  runCal(vmCount: number, hosts: number): void{
     this.settings.updateQty(vmCount, hosts);
     this.veeamSettings.updateQty(vmCount);
 

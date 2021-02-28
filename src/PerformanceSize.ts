@@ -58,7 +58,7 @@ export class PerformanceSize {
     return returnVal
   }
 
-  vbrPerft() {
+  vbrPerft(): number {
     const monthDays = 30.44 * this.vbrSettings.historicPerfData;
     const timeVar1 = (96 * 7) + (13 * monthDays); 
     const timeVar2 = (96 * 7) + (25 * monthDays); 

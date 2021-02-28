@@ -7,7 +7,7 @@ export class VbrEventsCal {
     this.settings = settings;
   }
 
-  vbrEvents() {
+  vbrEvents(): number {
     const result =
       ((this.settings.entermanQty * 0.47 + //data.vbrNumVbrEn
         this.settings.vbrServers * 1963 +

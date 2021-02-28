@@ -43,7 +43,7 @@ export class HostSizeCal {
   }
 
   // Typical
-  hostSizet() {
+  hostSizet(): number {
     const result =
       this.settings.hostQty *
       (288 * 7 + 13 * (30.44 * this.settings.historicPerfData)) *
@@ -55,7 +55,7 @@ export class HostSizeCal {
     return result;
   }
 
-  hvHostst(data: HvHostSizeInter) {
+  hvHostst(data: HvHostSizeInter): number {
     const result =
       data.hvHosts *
       (288 * 7 + 13 * (30.44 * data.historicPerfData)) *

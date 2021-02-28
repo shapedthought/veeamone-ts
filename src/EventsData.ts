@@ -30,7 +30,7 @@ export class EventsDataCal {
     return result;
   }
 
-  hvEventsData(data: EventsDataInter) {
+  hvEventsData(data: EventsDataInter): number {
     const result =
       ((data.vmCount * 0.1 + data.hosts * 527.2) * (30.44 * this.settings.eventsHistory)) /
       1024 /

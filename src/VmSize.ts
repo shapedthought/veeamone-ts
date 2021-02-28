@@ -50,7 +50,7 @@ class VmSizeCal {
   }
 
   // Typical calculation
-  vmSizet() {
+  vmSizet(): number {
     const monthDays = 30.44 * this.settings.historicPerfData;
     const vmCount = this.settings.vmQty; // changed the name so it doesn't break
     const result =
@@ -67,7 +67,7 @@ class VmSizeCal {
   }
 
   // NOT in use currently - maybe for future (Hyper-V)
-  hvVmSizet(data: HvVmSizeInter) {
+  hvVmSizet(data: HvVmSizeInter): number {
     const monthDays = 30.44 * data.historicPerfData;
     const result =
       data.hvVmCount *

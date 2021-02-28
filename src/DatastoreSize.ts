@@ -1,4 +1,3 @@
-import { General } from './Interfaces';
 import { Unknown } from './UnknownParam';
 import { InfraSettings } from './Settings';
 
@@ -20,7 +19,7 @@ export class DataStoreSizeCal {
     return result;
   }
 
-  datastoreSizet() {
+  datastoreSizet(): number {
     const monthDays = 30.44 * this.settings.historicPerfData;
     const result =
       this.settings.datastoreQty *
