@@ -1,4 +1,4 @@
-interface settingsUpdateInter {
+export interface settingsUpdateInter {
   avNicsHost: number,
   avNumVDisksVm: number,
   avNumGDiskVm: number,
@@ -13,7 +13,7 @@ interface settingsUpdateInter {
   avNicsVM: number
 }
 
-interface returnSettings {
+export interface returnSettings {
   vmThreashold: number,
   resourcePoolQty: number;
   clusterQty: number;
