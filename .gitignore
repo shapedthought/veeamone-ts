@@ -1,3 +1,5 @@
 node_modules/
-dist/
 build/
+Dockerfile
+.dockerignore
+veeamon-ts/node_modules
